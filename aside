@@ -21,6 +21,9 @@ class Aside(object):
     def __init__(self):
         self.d = shelve.open('.aside')
 
+    def __getitem__(self, key):
+        return getattr(self, key)
+
     def moveaside(self, path):
         self.d[path] =  open(path).read()
         check_call(['git', 'checkout', path])
@@ -61,28 +64,27 @@ class Aside(object):
     def close(self):
         self.d.close()
 
-    def handle_command_line():
+    def handle_command_line(self):
         import sys
 
-        aside = Aside()
         if len(sys.argv) == 2:
             if sys.argv[1] in ['ls', 'clear']:
                 cmd = sys.argv[1]
-                aside[cmd]()
+                self[cmd]()
             else:
                 cmd = 'moveaside'
                 path = sys.argv[1]
-                aside[cmd](path)
+                self[cmd](path)
         elif len(sys.argv) == 3:
             if sys.argv[1] in ['rm', 'cat', 'diff', 'restore']:
                 cmd = sys.argv[1]
                 path = sys.argv[2]
-                aside[cmd](path)
+                self[cmd](path)
             else:
-                print aside.__doc__
+                print self.__doc__
         else:
-            print aside.__doc__
-        aside.close()
+            print self.__doc__
+        self.close()
 
 if __name__ == '__main__':
-    handle_command_line()
+    Aside().handle_command_line()
