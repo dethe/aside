@@ -1,0 +1,87 @@
+#!/usr/bin/env python
+
+import shelve
+
+class Aside(object):
+    """
+    Move files aside temporarily, maintaining path information
+
+    Usage:
+
+    aside [path] -> copy file to .aside, overwrite file from git
+    aside ls -> show files in .aside
+    aside rm [path] -> remove file from .aside
+    aside cat [path] -> print file from .aside
+    aside clear -> remove all files from .aside
+    aside diff [path] -> show diff between current file and one in .aside
+    aside restore [path] -> overwrite current file with one from .aside, delete file in .aside
+    """
+
+    def __init__(self):
+        self.d = shelve.open('.aside')
+
+    def moveaside(self, path):
+        self.d[path] =  open(path).read()
+        # git checkout -- path
+
+    def ls(self):
+        for path in sorted(self.d.keys()):
+            print path
+
+    def rm(self, path):
+        if self.d[path]:
+            del self.d[path]
+        else:
+            print 'No such aside document found for {}'.format(path)
+
+    def cat(self, path):
+        if self.d[path]:
+            print self.d[path]
+        else:
+            print 'No such aside document found for {}'.format(path)
+
+    def clear(self):
+        # prompt: are you sure?
+        d.clear()
+
+    def diff(self, path):
+        # store d[path] in temp file
+        # call diff
+        # remove temp file
+        pass
+
+    def restore(self, path):
+        if self.d[path]:
+            open(path, 'w').write(self.d[path])
+            del self.d[path]
+        else:
+            print 'No such aside document found for {}'.format(path)
+
+    def close(self):
+        self.d.close()
+
+    def handle_command_line():
+        import sys
+
+        aside = Aside()
+        if len(sys.argv) == 2:
+            if sys.argv[1] in ['ls', 'clear']:
+                cmd = sys.argv[1]
+                aside[cmd]()
+            else:
+                cmd = 'moveaside'
+                path = sys.argv[1]
+                aside[cmd](path)
+        elif len(sys.argv) == 3:
+            if sys.argv[1] in ['rm', 'cat', 'diff', 'restore']:
+                cmd = sys.argv[1]
+                path = sys.argv[2]
+                aside[cmd](path)
+            else:
+                print aside.__doc__
+        else:
+            print aside.__doc__
+        aside.close()
+
+if __name__ == '__main__':
+    handle_command_line()
