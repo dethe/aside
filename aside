@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import shelve
+from subprocess import check_call
 
 class Aside(object):
     """
@@ -22,7 +23,7 @@ class Aside(object):
 
     def moveaside(self, path):
         self.d[path] =  open(path).read()
-        # git checkout -- path
+        check_call(['git', 'checkout', path])
 
     def ls(self):
         for path in sorted(self.d.keys()):
